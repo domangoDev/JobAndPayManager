@@ -1,13 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Button, View, SafeAreaView, Text, Alert, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Image, View, Text, TouchableOpacity} from 'react-native';
 import { vw, vh, vmin, vmax } from 'react-native-expo-viewport-units';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useRoute } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import { createStackNavigator } from '@react-navigation/stack';
 import  CreateAccScreen  from './Screens/CreateAcc';
 import  LoginScreen  from './Screens/Login';
 import  TimeSheetScreen  from './Screens/TimeSheet';
+import  AdminHomeScreen from './Screens/AdminHome';
+import  UserHomeScreen from './Screens/UserHome';
+import  CreateEmployeeAccScreen from './Screens/CreateEmployeeAcc';
+import logo from './assets/JPMLogo.png'; 
+import { AntDesign } from '@expo/vector-icons';
+
+import "firebase/auth";
+import "firebase/database";
+import firebase from 'firebase/app'
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -15,18 +25,60 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
       screenOptions={{ 
-        headerStyle: {backgroundColor: '#0be',},
+        width: '100%',
+        headerRight: () => <JPMIcon />,
+        headerStyle: {
+          backgroundColor: '#0be',
+        },
         headerTintColor: '#fff',
-        headerTitleStyle: {fontWeight: 'bold', textAlign: 'center', fontSize: 26}
+        headerTitleStyle: {
+          color: '#0be',
+          backgroundColor: 'white',
+          borderRadius: 8,
+          paddingVertical: 9,
+          paddingHorizontal: 15,
+          alignSelf: 'center',
+          marginLeft: '15%',
+          width: 'auto',
+  
+          shadowColor: '#171717',
+          shadowOffset: {width: -2, height: 4},
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+          elevation: 6
+        }
         }}>
         <Stack.Screen name="Login" component={LoginScreen} 
-        options={{ title: 'Login', }}/>
+        options={{ title: 'Login'}}/>
         <Stack.Screen name="CreateAccount" component={CreateAccScreen} 
         options={{ title: 'Create account'}}/>
+        <Stack.Screen name="UserHome" component={UserHomeScreen} 
+        options={{ title: 'Home'}}/>
         <Stack.Screen name="TimeSheet" component={TimeSheetScreen} 
         options={{ title: 'Time-Sheet'}}/>
+        <Stack.Screen name="AdminHome" component={AdminHomeScreen} 
+        options={{ title: 'Admin Home'}}/>
+        <Stack.Screen name="CreateEmployeeAcc" component={CreateEmployeeAccScreen} 
+        options={{ title: 'Create account'}}/>
       </Stack.Navigator>
     </NavigationContainer>
+  );
+}
+
+export function JPMIcon()
+{
+  console.log(useRoute().name)
+  return(
+    <View style={{width: 80}}>
+      <Image source={logo} 
+        style={{
+          alignSelf: 'flex-end',
+          marginRight: '15%',
+          resizeMode: 'contain', 
+          width: '60%',
+          //marginLeft: (useRoute.name == 'Login') ? '3%' : '30',
+          }} /> 
+    </View>
   );
 }
 

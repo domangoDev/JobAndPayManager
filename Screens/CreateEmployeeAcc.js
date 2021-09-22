@@ -1,41 +1,53 @@
 import { StatusBar } from 'expo-status-bar';
-import React , { useEffect, useState, Component } from 'react';
+import React , { useEffect, useState }from 'react';
 import { StyleSheet, Button, View, SafeAreaView, Text, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { vw, vh, vmin, vmax } from 'react-native-expo-viewport-units';
 import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import { createStackNavigator } from '@react-navigation/stack';
-import firebase from 'firebase/app'
 import "firebase/auth";
 import "firebase/database";
+import firebase from 'firebase/app'
+import { ListItem } from 'react-native-elements/dist/list/ListItem';
 import {GetUserData, UpdateUserData} from './UserData';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
 
 const Stack = createStackNavigator();
 
-export default function CreateAccScreen({ route, navigation }) {
-  const [business, setBusiness] = useState(' ');
+export default function CreateEmployeeAccScreen({ route, navigation }) {
+
+  const [name, setName] = useState(' ');
   const [email, setEmail] = useState(' ');
+  const [contact, setContact] = useState(' ');
   const [password, setPassword] = useState(' ');
   const [confirm, setConfirm] = useState(' ');
-  const [businesses, setBusinesses] = useState([]);
-  const [accCreated, setAccCreated] = useState(false);
+  const [business, setBusiness] = useState(' ');
+
+  const [businesses, setBusinesses] = useState([{}]);
   
-  function CreateUserData(user)
-  {
-    if(accCreated)
-    {
+  function SetUserData(user){
       firebase
-      .database()
-      .ref('Businesses/' + user.uid)
-      .set({
-        BusinessName: business,
+      .database().ref('users/' + user.uid).set({
+        FullName: name,
         Email: email.toLowerCase(),
-        Business: business
+        Contact: contact,
+        Business: business     
       });
-      UpdateUserData(user.uid);
-    }
+
+      firebase.database().ref('Businesses/').once('value', (snapshot) => {
+        let businessID;
+        if(snapshot.val())
+        {
+          console.log('trying to set data')
+           for (const [key, value] of Object.entries(snapshot.val())){
+             console.log(key);
+             if(value.Email == business.toLowerCase()) businessID = key;
+           }      
+        }
+        firebase.database().ref('Businesses/' + businessID).child("NewEmployees").push(user.uid);
+        UpdateUserData(user.uid); 
+      });   
+
+
   }
 
   useEffect(() => {
@@ -44,8 +56,8 @@ export default function CreateAccScreen({ route, navigation }) {
       {
          let tempArray = [];
          for (const [key, value] of Object.entries(snapshot.val())){
-           tempArray.push(value.Email);
            console.log(value.Email);
+           tempArray.push(value.Email);
          }
          setBusinesses(tempArray);  
       }
@@ -53,38 +65,71 @@ export default function CreateAccScreen({ route, navigation }) {
 
   }, []);
 
+  function CreateAccount()
+  {
+    if(name.length < 4) alert('Please enter a vaild Full Name');
+    else if(email.length < 7) alert('Please enter a vaild email address');
+    else if(contact.length < 4) alert('Please enter a vaild contact');
+    else if(password.length < 6) alert('Please enter a more complex passsword');
+    else if(confirm != password) alert('Your passwords do not match');
+    else if(!businesses.includes(business.toLowerCase())) alert('The business email you entered could not be found ')
+    else  {
+      let failed = false;
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .catch(error =>{
+          failed = true;
+          alert("Creating Account Failed \n\n please ensure you are entered a valid email address and a long enough password")
+          }).then(() => {
+          if(!failed)
+          {
+            SetUserData(firebase.auth().currentUser);
+            navigation.replace('UserHome');
+          }
+        })
+    }
+  }
 
   return (
-    <KeyboardAwareScrollView style={{flex: 1}}>
     <View style={styles.container}>
       <View style={styles.pageContent}>
         <Text style={styles.pageTxtLarge}>ENTER CREDENTIALS</Text>
+
         <View style={styles.inputArea}>
-          <Text style={styles.loginTxt}>Business Name: </Text>
+          <Text style={styles.loginTxt}>Full Name: </Text>
           <TextInput
             multiline={true}
             style={styles.input}
-            onChangeText={text => setBusiness(text)}
+            onChangeText={text => setName(text)}
             //value={number}
-            placeholder="Business Name"
+            placeholder=" Ben Smith "
           />
         </View>
         <View style={styles.inputArea}>
-          <Text style={styles.loginTxt}>Employeer Email: </Text>
+          <Text style={styles.loginTxt}>Email: </Text>
           <TextInput
             multiline={true}
             style={styles.input}
             onChangeText={text => setEmail(text)}
             //value={number}
-            placeholder="Employeer@gmail.com"
+            placeholder="bensmith@gmail.com "
           />
         </View>
         <View style={styles.inputArea}>
-          <Text style={styles.loginTxt}>Employeer Password: </Text>
+          <Text style={styles.loginTxt}>Contact Number: </Text>
+          <TextInput
+            multiline={true}
+            style={styles.input}
+            onChangeText={text => setContact(text)}
+            //value={number}
+            placeholder="000 000 0000"
+          />
+        </View>
+        <View style={styles.inputArea}>
+          <Text style={styles.loginTxt}>Password: </Text>
           <TextInput
             style={styles.input}
             onChangeText={text => setPassword(text)}
-            placeholder=" ******"
+            placeholder="*********"
             secureTextEntry
           />
         </View>
@@ -93,14 +138,25 @@ export default function CreateAccScreen({ route, navigation }) {
           <TextInput
             style={styles.input}
             onChangeText={text => setConfirm(text)}
-            placeholder=" ******"
+            placeholder="*********"
             secureTextEntry
           />
         </View>
+        <View style={styles.inputArea}>
+          <Text style={styles.loginTxt}>Business To Join: </Text>
+          <TextInput
+            multiline={true}
+            style={styles.input}
+            onChangeText={text => setBusiness(text)}
+            //value={num}
+            placeholder="Business Email Address"
+          />
+
+        </View>
         <View style={styles.createAccBtn}>
-        <Text style={styles.WarningTxt}>Employee's will need to create their own accounts and you will need to add them using the admin home </Text>
-          <TouchableOpacity style={styles.btn2} onPress={CreateAccount} >
-              <Text style={styles.textMedium}>Create Business Account</Text>
+        <Text style={styles.WarningTxt}>Notify your employeer to add you once your account is created </Text>
+          <TouchableOpacity style={styles.btn2} onPress={() => CreateAccount()} >
+              <Text style={styles.textMedium}>Create Employee Account</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.createAccOption}>
@@ -109,42 +165,16 @@ export default function CreateAccScreen({ route, navigation }) {
               <Text style={styles.textMedium}>Login</Text>
           </TouchableOpacity >
         </View>
-
       </View>
     </View>
-    </KeyboardAwareScrollView>
   );
-
-
-
-  function CreateAccount()
-  {
-    if(business.length < 3) alert('Please enter a valid Business Name');
-    else if(email.length < 7) alert('Please enter a vaild email address');
-    else if(password.length < 6) alert('Please enter a more complex passsword');
-    else if(confirm != password) alert('Your passwords do not match');
-    else if(businesses.includes(email.toLowerCase())) alert('A business with this email address already exists');
-    else  {
-      let failed = false;
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .catch(error =>{
-          failed = true;
-          setAccCreated(false);
-          alert("Creating Account Failed \n\n Please ensure you are entered a valid email address and a long enough password")
-          }).then(() => {
-          if(!failed)
-          {
-            CreateUserData(firebase.auth().currentUser)
-            setAccCreated(true);
-            navigation.replace('AdminHome');
-          }
-        })
-    }
-  }
 }
 
 const styles = StyleSheet.create({
-  
+
+    dropDown:{
+      width: '50%',
+    },  
     textExtraLarge: {
       margin: vh(1),
       marginTop: vh(5),
@@ -177,10 +207,11 @@ const styles = StyleSheet.create({
     },
 
     inputArea: {
-      margin: vh(1),
-      alignSelf: 'flex-end',
-      marginRight: '15%',
-      flexDirection: 'row'
+      height: vh(4),
+      width: '90%',
+      marginVertical: vh(1),
+      flexDirection: 'row',
+      alignSelf: 'flex-start',
     },
 
     loginTxt: {
@@ -195,7 +226,7 @@ const styles = StyleSheet.create({
     },
 
     input: {
-      width: '60%',
+      width: '50%',
       padding: '1%',
       borderBottomWidth: 2,
       borderColor: '#0be',
@@ -282,7 +313,7 @@ const styles = StyleSheet.create({
     },
 
     createAccBtn: {
-      marginTop: vh(16),
+      marginTop: vh(7),
       alignSelf: 'center',
     },
   

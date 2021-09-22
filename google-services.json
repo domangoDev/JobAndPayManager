@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "301190593877",
+    "project_id": "job-and-pay-manager",
+    "storage_bucket": "job-and-pay-manager.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301190593877:android:affe89d1828211745ec3dc",
+        "android_client_info": {
+          "package_name": "com.TouchGemu.JPM"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "301190593877-2upe359r9kpocuh44fpgqrp2aadj9e1a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.TouchGemu.JPM",
+            "certificate_hash": "7c93e8108a7f2a0be0afe37151f36c98e0111e7c"
+          }
+        },
+        {
+          "client_id": "301190593877-qmbcljr45t2namjr11c0pc2hnrvhmjmp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1p6ZBUPwpfECpebdSqgL7depJylewTrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301190593877-qmbcljr45t2namjr11c0pc2hnrvhmjmp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
