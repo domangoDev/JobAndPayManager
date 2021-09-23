@@ -24,18 +24,17 @@ export default function CreateAccScreen({ route, navigation }) {
   
   function CreateUserData(user)
   {
-    if(accCreated)
-    {
-      firebase
-      .database()
-      .ref('Businesses/' + user.uid)
-      .set({
-        BusinessName: business,
-        Email: email.toLowerCase(),
-        Business: business
-      });
-      UpdateUserData(user.uid);
-    }
+    console.log("Set business Data");
+    firebase
+    .database()
+    .ref('Businesses/' + user.uid)
+    .set({
+
+      BusinessName: business,
+      Email: email.toLowerCase(),
+      Business: business
+    });
+    UpdateUserData(user.uid);
   }
 
   useEffect(() => {
@@ -50,7 +49,6 @@ export default function CreateAccScreen({ route, navigation }) {
          setBusinesses(tempArray);  
       }
     });
-
   }, []);
 
 
@@ -62,7 +60,6 @@ export default function CreateAccScreen({ route, navigation }) {
         <View style={styles.inputArea}>
           <Text style={styles.loginTxt}>Business Name: </Text>
           <TextInput
-            multiline={true}
             style={styles.input}
             onChangeText={text => setBusiness(text)}
             //value={number}
@@ -72,7 +69,6 @@ export default function CreateAccScreen({ route, navigation }) {
         <View style={styles.inputArea}>
           <Text style={styles.loginTxt}>Employeer Email: </Text>
           <TextInput
-            multiline={true}
             style={styles.input}
             onChangeText={text => setEmail(text)}
             //value={number}
@@ -177,10 +173,11 @@ const styles = StyleSheet.create({
     },
 
     inputArea: {
-      margin: vh(1),
-      alignSelf: 'flex-end',
-      marginRight: '15%',
-      flexDirection: 'row'
+      height: vh(4),
+      width: '90%',
+      marginVertical: vh(1),
+      flexDirection: 'row',
+      alignSelf: 'flex-start',
     },
 
     loginTxt: {
@@ -195,7 +192,7 @@ const styles = StyleSheet.create({
     },
 
     input: {
-      width: '60%',
+      width: '50%',
       padding: '1%',
       borderBottomWidth: 2,
       borderColor: '#0be',

@@ -33,8 +33,8 @@ export default function LoginScreen({navigation}) {
     if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
   }, []);
 
-  const [email, setEmail] = useState(' ');
-  const [password, setPassword] = useState(' ');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
 return (

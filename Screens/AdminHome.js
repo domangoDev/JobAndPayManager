@@ -34,7 +34,6 @@ export default function AdminHomeScreen({navigation}) {
   const [selStatus, setSelStatus] = useState('All');
   const [filterName, setFilterName] = useState();
 
-
   const [curItemKey, setCurItemKey] = useState(0);
   const [details1, setDetails1] = useState('');
   const [details2, setDetails2] = useState('');
@@ -61,6 +60,9 @@ export default function AdminHomeScreen({navigation}) {
   const [employeeData, setEmployeeData] = useState();
   const [jobData, setJobData] = useState();
   const [newEmp, setNewEmp] = useState();
+
+  const [view, setView] = useState(20);
+  const [page, setPage] = useState(1);
 
   let userData = GetUserData();
   let tempTSData = [];
@@ -93,7 +95,7 @@ export default function AdminHomeScreen({navigation}) {
       if(snapshot.val())
       {
         let tempArray = [];
-        let count = 0;
+        let tsTotal = 0;
         allUserIDs = snapshot.val();
         snapshot.forEach(userID => {
         firebase.database().ref('users/' + userID.val()).on('value', (userSnapshot) => {
@@ -106,14 +108,17 @@ export default function AdminHomeScreen({navigation}) {
 
             if(userSnapshot.val().TimeSheets)
             {
+              let tsCount = 0;
               for (const [key, value] of Object.entries(userSnapshot.val().TimeSheets)){
+                //tsCount++;
+                //if(tsCount > (Object.entries(userSnapshot.val().TimeSheets).length) - 10) 
                 const ref = "users/" + userID.val() + "/TimeSheets/" + key;
                 let icon, colour;
                 if (value.Status == "Approved") {icon = "checkcircle"; colour = "#090"}
                 else if (value.Status == "Declined") {icon = "closecircle"; colour = "#900"}
                 else {icon = "questioncircle"; colour = "#222"}
-                tempTSData.push({key: count.toString(), date: GetDate(value.tsDate), icon: icon, ref: ref, colour: colour, Status: value.Status, Name: userSnapshot.val().FullName, ...value});
-                count++;
+                tempTSData.push({key: tsTotal.toString(), date: GetDate(value.tsDate), icon: icon, ref: ref, colour: colour, Status: value.Status, Name: userSnapshot.val().FullName, ...value});
+                tsTotal++;
               }
             }
 
@@ -198,8 +203,9 @@ export default function AdminHomeScreen({navigation}) {
       ResetDetails(); 
       EditJob(); 
       setDetails1(jobCount + 1);
-      setCreatingJob(true);
     }
+    setCreatingJob(!creatingJob);
+    setTextEditable(!textEditable);
     setJobVisible(!jobVisible);
   }
 
@@ -334,6 +340,7 @@ export default function AdminHomeScreen({navigation}) {
       setOverlayBtn2("closecircle");
     }
   }
+
   function CancelEditing()
   {
     setCreatingJob(false);
@@ -450,6 +457,7 @@ export default function AdminHomeScreen({navigation}) {
     if(filterName && filterName.length != " ") tempData = tempData.filter(item => item.Name.toLowerCase().includes(filterName.toLowerCase()));
     if(selStatus && selStatus != "All") tempData = tempData.filter(item => item.Status.toLowerCase() == selStatus.toLowerCase());  
     tempData.sort((a,b)=> b.date.getTime() - a.date.getTime());
+    tempData = tempData.slice(0, 3);
     setFilteredTSData(tempData);
   }
 
@@ -509,6 +517,23 @@ return (
               onChangeText={text => setFilterName(text)} 
               style={[styles.input, {marginLeft: 10, marginTop: '9%', color: '#000', width:'80%', borderBottomWidth: 2, height: 25}]}/>
           </View>
+          <View style={[styles.row, {width: "55%"}]}>
+            <Text style={[styles.pageTxt, {marginTop: '3%'}]}>Page: </Text>
+            <TextInput 
+              multiline={false} 
+              placeholder="10" 
+              value={page.toString()}
+              onChangeText={text => setPage(text)} 
+              style={[styles.input, {marginLeft: 10, marginTop: '2%', color: '#000', width:'15%', borderBottomWidth: 2, height: 25}]}/>
+            <Text style={[styles.pageTxt, {marginTop: '3%'}]}>View: </Text>
+            <TextInput 
+              multiline={false} 
+              placeholder="10" 
+              value={view.toString()}
+              onChangeText={text => setPage(text)} 
+              style={[styles.input, {marginLeft: 10, marginTop: '2%', color: '#000', width:'15%', borderBottomWidth: 2, height: 25}]}/>
+          </View>
+          
           <TouchableOpacity onPress={() => filterTSData(oldTSData)} style={[styles.createBtn, {margin: '4%'}]}>
             <Text style={[styles.textMedium, {margin: 4, marginVertical: 4}]}>Filter</Text>
           </TouchableOpacity>
