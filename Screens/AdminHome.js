@@ -63,7 +63,7 @@ export default function AdminHomeScreen({navigation}) {
 
   const [view, setView] = useState(20);
   const [page, setPage] = useState(1);
-
+  const [maxPage, setMaxPage] = useState();
   let userData = GetUserData();
   let tempTSData = [];
   let allUserIDs = [];
@@ -151,16 +151,6 @@ export default function AdminHomeScreen({navigation}) {
     });
 
   }, []);
-
-  function GetEmployees()
-  {
-
-  }
-
-  function GetNewEmployees()
-  {
-
-  }
 
   function ResetDetails()
   {
@@ -452,12 +442,24 @@ export default function AdminHomeScreen({navigation}) {
 
   function filterTSData(data)
   {
-    console.log("Filtering Data")
     let tempData = data;
+    let max = (tempData.length % view > 0) ? Math.floor(tempData.length / view) + 1 : Math.floor(tempData.length / view);
+    let p = Math.round(parseFloat(page));
+    let v = Math.round(parseFloat(view));
+
+    p = (p > max) ? max : p;
+    p = (p < 1) ? 1 : p;
+    v = (v > 50) ? 50 : v;
+    v = (v < 1) ? 1 : v;
+
     if(filterName && filterName.length != " ") tempData = tempData.filter(item => item.Name.toLowerCase().includes(filterName.toLowerCase()));
     if(selStatus && selStatus != "All") tempData = tempData.filter(item => item.Status.toLowerCase() == selStatus.toLowerCase());  
     tempData.sort((a,b)=> b.date.getTime() - a.date.getTime());
-    tempData = tempData.slice(0, 3);
+    tempData = tempData.slice((p-1) * v, ((p-1) * v) + parseFloat(v));
+
+    setView(v);
+    setMaxPage(max);
+    setPage(p);
     setFilteredTSData(tempData);
   }
 
@@ -518,26 +520,29 @@ return (
               style={[styles.input, {marginLeft: 10, marginTop: '9%', color: '#000', width:'80%', borderBottomWidth: 2, height: 25}]}/>
           </View>
           <View style={[styles.row, {width: "55%"}]}>
-            <Text style={[styles.pageTxt, {marginTop: '3%'}]}>Page: </Text>
-            <TextInput 
-              multiline={false} 
-              placeholder="10" 
-              value={page.toString()}
-              onChangeText={text => setPage(text)} 
-              style={[styles.input, {marginLeft: 10, marginTop: '2%', color: '#000', width:'15%', borderBottomWidth: 2, height: 25}]}/>
             <Text style={[styles.pageTxt, {marginTop: '3%'}]}>View: </Text>
             <TextInput 
               multiline={false} 
               placeholder="10" 
               value={view.toString()}
+              keyboardType={'numeric'}
+              onChangeText={text => setView(text)} 
+              style={[styles.input, {marginLeft: 10, marginTop: '2%', color: '#000', width:'15%', borderBottomWidth: 2, height: 25}]}/>
+            <Text style={[styles.pageTxt, {marginTop: '3%'}]}>Page: </Text>
+            <TextInput 
+              multiline={false} 
+              placeholder="10" 
+              value={page.toString()}
+              keyboardType={'numeric'}
               onChangeText={text => setPage(text)} 
               style={[styles.input, {marginLeft: 10, marginTop: '2%', color: '#000', width:'15%', borderBottomWidth: 2, height: 25}]}/>
+              <Text style={[styles.pageTxt, {marginTop: '3%'}]}>{' of ' + maxPage} </Text>
           </View>
           
           <TouchableOpacity onPress={() => filterTSData(oldTSData)} style={[styles.createBtn, {margin: '4%'}]}>
             <Text style={[styles.textMedium, {margin: 4, marginVertical: 4}]}>Filter</Text>
           </TouchableOpacity>
-            <View style={[styles.listContainer, {height: '60%'}]}>
+            <View style={[styles.listContainer, {height: '55%'}]}>
             <FlatList
               data={filteredTSData}
               renderItem={({item}) => 

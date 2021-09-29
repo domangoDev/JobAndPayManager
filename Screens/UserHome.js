@@ -129,15 +129,15 @@ return (
               data={prevData}
               renderItem={({item}) => 
                 <TouchableOpacity style={styles.listItem}>
-                  <View style={styles.itemRow}>
+                  <View style={[styles.itemRow, {width: '30%'}]}>
                     <AntDesign name="calendar" color={'#000'} size={20}/>
                     <Text style={styles.itemTxt}> {item.date}</Text> 
                   </View> 
-                  <View style={[styles.itemRow, {width: '15%'}]}>
+                  <View style={[styles.itemRow, {width: '25%'}]}>
                     <AntDesign name="clockcircle" color={'#000'} size={20}/>
                     <Text style={styles.itemTxt}> {item.time}</Text> 
                   </View>
-                  <TouchableOpacity style={[styles.itemRow, {width: '50%'}]}>
+                  <TouchableOpacity style={[styles.itemRow, {width: '40%'}]}>
                     <AntDesign name={item.icon} color={item.colour} size={25}/>
                     <Text style={[styles.itemTxt, {paddingLeft: '5%'}]}>{item.status} </Text> 
                   </TouchableOpacity>

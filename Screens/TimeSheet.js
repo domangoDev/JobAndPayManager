@@ -78,7 +78,7 @@ export default function TimeSheetScreen({navigation}) {
     let tempTotal = ((((end - start) / 36e5) <= 0) ?  
                       ((end - start) / 36e5) + 24 : 
                       (end - start  ) / 36e5) - (tempBreak.getHours() + (tempBreak.getMinutes() / 60));
-    setTotal(tempTotal);
+    setTotal(parseFloat(tempTotal).toFixed(2));
   }
   function OnDateChange(event, selectedDate)
   {
@@ -133,8 +133,9 @@ export default function TimeSheetScreen({navigation}) {
     }
     else  
     {
-      setTotalTaskTime(totalTaskTime + parseFloat(timeSpent));
-      setTaskData([...taskData, {key: (taskData.length + 1).toString(), job: selJob.toString(), desc: taskDesc, time: timeSpent}]);
+      let tempTotal = (parseFloat(totalTaskTime) + parseFloat(timeSpent));
+      setTotalTaskTime(tempTotal);
+      setTaskData([...taskData, {key: (taskData.length + 1).toString(), job: selJob.toString(), desc: taskDesc, time: parseFloat(timeSpent).toFixed(1)}]);
       setTimeSpent('');
       setTaskDesc('');
     }
@@ -155,13 +156,13 @@ export default function TimeSheetScreen({navigation}) {
   {
     console.log(total + " < " + totalTaskTime);
 
-    if(total < totalTaskTime)
+    if(total < totalTaskTime && totalTaskTime - total >= 0.05)
     {
-      Alert.alert("You have entered too much time in your tasks. Remove " + (totalTaskTime - total) + " Hours");
+      Alert.alert("You have entered too much time in your tasks. Remove " + (totalTaskTime - total).toFixed(2) + " Hours");
     }
-    else if (total > totalTaskTime)
+    else if (total > totalTaskTime && totalTaskTime - total >= 0.05)
     {
-      Alert.alert("You have not entered enough time in your tasks. Add " + (total - totalTaskTime)  + " Hours");
+      Alert.alert("You have not entered enough time in your tasks. Add " + (total - totalTaskTime).toFixed(2)  + " Hours");
     }
     else if (viewDate == "00-00-0000") Alert.alert("Please select a date for this time-sheet.")
     else
@@ -245,14 +246,14 @@ export default function TimeSheetScreen({navigation}) {
                     <AntDesign name="tag" color={'#000'} size={20}/>
                     <Text style={[styles.itemTxt1]}>{item.job} </Text> 
                   </View>
-                  <View style={[{width: '60%'}]}>
+                  <View style={[{width: '57%'}]}>
                     <Text style={styles.itemTxt2}> {item.desc}</Text> 
                   </View>
                   <View style={styles.itemRow}>
                     <AntDesign name="clockcircle" color={'#000'} size={20}/>
                     <Text style={styles.itemTxt3}> {item.time}</Text> 
                   </View>
-                  <TouchableOpacity style={styles.itemRow} onPress={() => deleteItem(item)}>
+                  <TouchableOpacity style={[styles.itemRow, {marginLeft: '2%'}]} onPress={() => deleteItem(item)}>
                     <AntDesign name="delete" color={'#0be'} size={25}/>
                   </TouchableOpacity>
                 </View>}
